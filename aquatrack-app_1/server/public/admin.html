@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AquaTrack · Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;1,600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{--ink:#0A1628;--cyan:#06B6D4;--cyan-deep:#0E7490;--cyan-pale:#CFFAFE;--sun:#F59E0B;
+    --surface:#F8F6F1;--surface2:#EFEAE0;--mid:#64748B;--coral:#F43F5E;--green:#16A34A;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Poppins,system-ui,sans-serif;background:var(--surface);color:var(--ink)}
+  h3{font-family:Lora,serif;margin:0}
+  button{font-family:inherit;cursor:pointer}.hidden{display:none!important}
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(130% 90% at 50% 0%,#142850,#0A1628 60%);padding:20px}
+  .card{background:#fff;border-radius:14px;padding:32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+  .brand{font-family:Lora;font-weight:600;font-size:22px}.brand span{color:var(--cyan-deep)}
+  .muted{color:var(--mid);font-size:13px}
+  label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--mid);margin:14px 0 6px}
+  input,select{width:100%;padding:11px 12px;border:1px solid var(--surface2);border-radius:8px;font-size:14px;font-family:inherit;background:#fff}
+  input:focus,select:focus{outline:none;border-color:var(--cyan)}
+  .btn{background:var(--ink);color:var(--surface);border:none;border-radius:8px;padding:12px 16px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:13px;width:100%}
+  .btn:active{transform:scale(.99)}.btn.cyan{background:var(--cyan);color:var(--ink)}
+  .btn.sm{width:auto;padding:7px 12px;font-size:12px;text-transform:none;letter-spacing:0}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--surface2)}
+  .btn.danger{background:#fff;color:var(--coral);border:1px solid #f3c0c8}
+  .err{color:var(--coral);font-size:13px;margin-top:10px;min-height:18px}
+  header.top{background:var(--ink);color:var(--surface);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  header.top .brand{color:#fff;font-size:18px}
+  .rolebadge{background:var(--cyan);color:var(--ink);font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;margin-left:8px}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px}
+  .panel{background:#fff;border:1px solid var(--surface2);border-radius:12px;padding:18px;margin-bottom:18px}
+  .panel h3{font-size:16px;margin-bottom:4px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+  .row .field{flex:1;min-width:150px}.field label{margin-top:0}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--surface2)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mid)}
+  .pill{background:var(--cyan-pale);color:var(--cyan-deep);font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px}
+  .dropzone{border:2px dashed #c9d6e5;border-radius:10px;padding:18px;text-align:center;color:var(--mid);font-size:13px;background:#fbfcfe}
+  .dropzone.drag{border-color:var(--cyan);background:var(--cyan-pale)}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+  .toast.show{opacity:1}.toast.ok{background:var(--green)}.toast.bad{background:var(--coral)}
+  .backdrop{position:fixed;inset:0;background:rgba(10,22,40,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:40}
+  .modal{background:#fff;border-radius:12px;padding:22px;width:100%;max-width:560px;max-height:86vh;overflow:auto}
+  .small{font-size:12px;color:var(--mid)}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="card">
+    <div class="brand">AquaTrack <span>/ Admin</span></div>
+    <p class="muted" style="margin-top:6px">Sign in to your admin account</p>
+    <label for="email">Email</label>
+    <input id="email" type="email" value="admin@aquatrack.co.ke" autocomplete="username" />
+    <label for="password">Password</label>
+    <input id="password" type="password" value="" autocomplete="current-password" />
+    <div class="err" id="loginErr"></div>
+    <button class="btn cyan" style="margin-top:16px" onclick="login()">Sign in</button>
+    <p class="muted" style="margin-top:14px">Master: admin@aquatrack.co.ke<br>School: brookhouse@aquatrack.co.ke<br>Password: ChangeMe123!</p>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="brand">AquaTrack <span style="color:var(--cyan)">/ Admin</span><span class="rolebadge" id="roleBadge"></span></div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <span class="muted" id="whoami" style="color:#9fb3c8"></span>
+      <button class="btn sm ghost" onclick="logout()">Sign out</button>
+    </div>
+  </header>
+  <div class="wrap">
+
+    <!-- MASTER ONLY: school admins -->
+    <div id="adminsPanel" class="hidden">
+      <div class="panel">
+        <h3>Add a school admin</h3>
+        <p class="muted" style="margin:4px 0 10px">Creates the login and onboards the school if it's new.</p>
+        <div class="row">
+          <div class="field"><label>School</label><input id="ma_school" placeholder="Greensteds International" /></div>
+          <div class="field"><label>Location</label><input id="ma_loc" placeholder="Nakuru" /></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div class="field"><label>Admin name</label><input id="ma_name" placeholder="Jane Muthoni" /></div>
+          <div class="field"><label>Admin email</label><input id="ma_email" type="email" placeholder="jane@school.ac.ke" /></div>
+          <div class="field"><label>Temp password</label><input id="ma_pass" type="text" placeholder="min 8 chars" /></div>
+          <button class="btn sm cyan" onclick="addSchoolAdmin()">Create</button>
+        </div>
+        <div class="err" id="maErr"></div>
+      </div>
+      <div class="panel">
+        <h3 id="ad_count">School admins</h3>
+        <table><thead><tr><th>School</th><th>Admin</th><th>Email</th><th>Added</th><th></th></tr></thead><tbody id="ad_tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- MASTER ONLY: pick a school to manage -->
+    <div id="schoolPicker" class="panel hidden">
+      <h3>Manage a school's records</h3>
+      <p class="muted" style="margin:4px 0 10px">As master you can edit any school, its swimmers and their race times.</p>
+      <select id="ms_school" onchange="pickSchool(this.value)"><option value="">Select a school…</option></select>
+    </div>
+
+    <!-- BOTH: school details + swimmers + results (uses current school context) -->
+    <div id="dataPanels" class="hidden">
+      <div class="panel">
+        <h3 id="schoolTitle">School details</h3>
+        <div class="row" style="margin-top:10px">
+          <div class="field"><label>Name</label><input id="sch_name" /></div>
+          <div class="field"><label>Location</label><input id="sch_loc" /></div>
+          <div class="field" style="max-width:140px"><label>Type</label>
+            <select id="sch_club"><option value="false">School</option><option value="true">Club</option></select></div>
+          <button class="btn sm ghost" onclick="saveSchool()">Save</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Add a swimmer</h3>
+        <div class="row" style="margin-top:10px">
+          <div class="field"><label>Full name</label><input id="sw_name" placeholder="Sarah Kimani" /></div>
+          <div class="field" style="max-width:120px"><label>Sex</label>
+            <select id="sw_sex"><option value="">—</option><option value="female">Female</option><option value="male">Male</option><option value="other">Other</option></select></div>
+          <div class="field" style="max-width:170px"><label>Date of birth</label><input id="sw_dob" type="date" /></div>
+          <button class="btn sm cyan" onclick="addSwimmer()">Add</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Bulk upload swimmers (CSV)</h3>
+        <p class="muted" style="margin:4px 0 10px">Headers: <code>full_name, sex, date_of_birth</code></p>
+        <div class="dropzone" id="dz_swimmers">Drop a .csv here or <label style="color:var(--cyan-deep);cursor:pointer;display:inline">browse<input type="file" accept=".csv" class="hidden" onchange="csvUpload(this)"></label></div>
+      </div>
+      <div class="panel">
+        <h3 id="sw_count">Swimmers</h3>
+        <table><thead><tr><th>Name</th><th>Sex</th><th>Age</th><th>Results</th><th></th></tr></thead><tbody id="sw_tbody"></tbody></table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="modalRoot"></div>
+
+<script>
+const TOKEN_KEY='aquatrack_admin_token';
+// Where the API lives. When this page is served by the API (http://host:4000/admin)
+// same-origin relative URLs work. If the file is opened directly (file://) or you
+// want to point elsewhere, fall back to localhost:4000 — or override with ?api=URL.
+const API=(new URLSearchParams(location.search).get('api'))||(location.protocol.startsWith('http')?'':'http://localhost:4000');
+const state={role:null,schoolId:null,schools:[]};
+const token=()=>localStorage.getItem(TOKEN_KEY);
+const headers=()=>({'Content-Type':'application/json','Authorization':'Bearer '+token()});
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=id=>document.getElementById(id);
+const val=id=>$(id).value;
+function toast(m,k){const t=$('toast');t.textContent=m;t.className='toast show '+(k||'');setTimeout(()=>t.className='toast',2600);}
+
+async function login(){
+  const email=$('email').value.trim(),password=$('password').value,err=$('loginErr');err.textContent='';
+  try{
+    const r=await fetch(API+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const d=await r.json();
+    if(!r.ok){err.textContent=d.error==='invalid_credentials'?'Wrong email or password':('Error: '+d.error);return;}
+    localStorage.setItem(TOKEN_KEY,d.token);enterApp(d.admin);
+  }catch(e){err.textContent='Can\u2019t reach the API at '+(API||location.origin)+'. Is the server running (npm start) on port 4000?';}
+}
+function logout(){localStorage.removeItem(TOKEN_KEY);location.reload();}
+
+async function enterApp(admin){
+  state.role=admin.role;
+  $('login').classList.add('hidden');$('app').classList.remove('hidden');
+  $('roleBadge').textContent=admin.role==='master'?'Master':'School admin';
+  $('whoami').textContent=admin.email+(admin.school?(' · '+admin.school):'');
+  const schools=await (await fetch(API+'/api/admin/schools',{headers:headers()})).json();
+  state.schools=schools;
+  if(admin.role==='master'){
+    $('adminsPanel').classList.remove('hidden');$('schoolPicker').classList.remove('hidden');
+    loadAdmins();
+    $('ms_school').innerHTML='<option value="">Select a school…</option>'+schools.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  }else{
+    // school admin: their single school is the working context
+    if(schools[0]){ state.schoolId=schools[0].id; fillSchool(schools[0]); $('dataPanels').classList.remove('hidden'); loadSwimmers(); }
+  }
+}
+
+/* ── master: school admins ── */
+async function loadAdmins(){
+  const r=await fetch(API+'/api/admin/admins',{headers:headers()}); if(r.status===401)return logout();
+  const list=await r.json();
+  $('ad_count').textContent=`School admins (${list.length})`;
+  $('ad_tbody').innerHTML=list.length?list.map(a=>`<tr><td>${esc(a.school)||'—'}</td><td>${esc(a.full_name)||'—'}</td>
+    <td>${esc(a.email)}</td><td class="muted">${new Date(a.created_at).toLocaleDateString()}</td>
+    <td style="text-align:right"><button class="btn sm danger" onclick="removeAdmin('${a.id}','${esc(a.email)}')">Remove</button></td></tr>`).join('')
+    :`<tr><td colspan="5" class="muted" style="padding:14px">No school admins yet.</td></tr>`;
+}
+async function addSchoolAdmin(){
+  const body={school:val('ma_school').trim(),location:val('ma_loc').trim()||null,full_name:val('ma_name').trim()||null,email:val('ma_email').trim(),password:val('ma_pass')};
+  const err=$('maErr');err.textContent='';
+  if(!body.school||!body.email||!body.password){err.textContent='School, email and password are required';return;}
+  if(body.password.length<8){err.textContent='Password must be at least 8 characters';return;}
+  const r=await fetch(API+'/api/admin/admins',{method:'POST',headers:headers(),body:JSON.stringify(body)});
+  const d=await r.json();
+  if(!r.ok){err.textContent=d.error==='email_taken'?'That email already has an account':('Error: '+d.error);return;}
+  toast('School admin created','ok');['ma_school','ma_loc','ma_name','ma_email','ma_pass'].forEach(id=>$(id).value='');
+  loadAdmins(); enterAppRefreshSchools();
+}
+async function removeAdmin(id,email){
+  if(!confirm('Remove school admin '+email+'? Their login stops working. School & swimmer data are kept.'))return;
+  const r=await fetch(API+'/api/admin/admins/'+id,{method:'DELETE',headers:headers()});
+  if(!r.ok){const d=await r.json();return toast('Error: '+d.error,'bad');}
+  toast('School admin removed','ok');loadAdmins();
+}
+async function enterAppRefreshSchools(){
+  const schools=await (await fetch(API+'/api/admin/schools',{headers:headers()})).json();
+  state.schools=schools;
+  $('ms_school').innerHTML='<option value="">Select a school…</option>'+schools.map(s=>`<option value="${s.id}" ${s.id===state.schoolId?'selected':''}>${esc(s.name)}</option>`).join('');
+}
+
+/* ── shared school-data context (master picks; school admin fixed) ── */
+function pickSchool(id){
+  state.schoolId=id||null;
+  if(!id){$('dataPanels').classList.add('hidden');return;}
+  const s=state.schools.find(x=>x.id===id); if(s)fillSchool(s);
+  $('dataPanels').classList.remove('hidden'); loadSwimmers();
+}
+function fillSchool(s){
+  $('schoolTitle').textContent='School details — '+s.name;
+  $('sch_name').value=s.name||'';$('sch_loc').value=s.location||'';$('sch_club').value=String(!!s.is_club);
+}
+async function saveSchool(){
+  if(!state.schoolId)return;
+  const body={name:val('sch_name').trim(),location:val('sch_loc').trim(),is_club:val('sch_club')};
+  const r=await fetch(API+'/api/admin/schools/'+state.schoolId,{method:'PATCH',headers:headers(),body:JSON.stringify(body)});
+  if(!r.ok){const d=await r.json();return toast('Error: '+d.error,'bad');}
+  toast('School saved','ok');
+}
+async function loadSwimmers(){
+  const q=state.schoolId?('?school_id='+state.schoolId):'';
+  const r=await fetch(API+'/api/admin/swimmers'+q,{headers:headers()}); if(r.status===401)return logout();
+  const list=await r.json();
+  $('sw_count').textContent=`Swimmers (${list.length})`;
+  $('sw_tbody').innerHTML=list.length?list.map(s=>`<tr><td>${esc(s.full_name)}</td><td>${esc(s.sex)||'—'}</td>
+    <td>${s.age??'—'}</td><td><button class="btn sm ghost" onclick='swimmerTimes(${JSON.stringify(s)})'>Times (${s.results})</button></td>
+    <td style="text-align:right"><button class="btn sm ghost" onclick='editSwimmer(${JSON.stringify(s)})'>Edit</button></td></tr>`).join('')
+    :`<tr><td colspan="5" class="muted" style="padding:14px">No swimmers yet.</td></tr>`;
+}
+async function addSwimmer(){
+  const full_name=val('sw_name').trim(); if(!full_name)return toast('Name is required','bad');
+  const body={full_name,sex:val('sw_sex')||null,date_of_birth:val('sw_dob')||null,school_id:state.schoolId};
+  const r=await fetch(API+'/api/admin/swimmers',{method:'POST',headers:headers(),body:JSON.stringify(body)});
+  if(!r.ok){const d=await r.json();return toast('Error: '+d.error,'bad');}
+  toast('Swimmer added','ok');['sw_name','sw_dob'].forEach(id=>$(id).value='');loadSwimmers();
+}
+function editSwimmer(s){
+  modal('Edit swimmer', `
+    <label>Full name</label><input id="e_name" value="${esc(s.full_name)}">
+    <label>Sex</label><select id="e_sex">${[['','—'],['female','Female'],['male','Male'],['other','Other']].map(([v,l])=>`<option value="${v}" ${v===(s.sex||'')?'selected':''}>${l}</option>`).join('')}</select>
+    <label>Date of birth</label><input id="e_dob" type="date" value="${s.date_of_birth?String(s.date_of_birth).slice(0,10):''}">
+    <div style="display:flex;gap:8px;margin-top:18px">
+      <button class="btn danger" onclick="delSwimmer('${s.id}','${esc(s.full_name)}')">Delete</button>
+      <span style="flex:1"></span>
+      <button class="btn ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn cyan" onclick="saveSwimmer('${s.id}')">Save</button>
+    </div>`);
+}
+async function saveSwimmer(id){
+  const body={full_name:val('e_name'),sex:val('e_sex'),date_of_birth:val('e_dob')||null};
+  const r=await fetch(API+'/api/admin/swimmers/'+id,{method:'PATCH',headers:headers(),body:JSON.stringify(body)});
+  if(!r.ok){const d=await r.json();return toast('Error: '+d.error,'bad');}
+  closeModal();toast('Saved','ok');loadSwimmers();
+}
+async function delSwimmer(id,name){
+  if(!confirm('Delete '+name+' and all their results & videos? This cannot be undone.'))return;
+  const r=await fetch(API+'/api/admin/swimmers/'+id,{method:'DELETE',headers:headers()});
+  if(!r.ok){const d=await r.json();return toast('Error: '+d.error,'bad');}
+  closeModal();toast('Swimmer deleted','ok');loadSwimmers();
+}
+
+/* ── race results / times editing ── */
+async function swimmerTimes(s){
+  const r=await fetch(API+'/api/admin/swimmers/'+s.id+'/results',{headers:headers()});
+  const list=await r.json();
+  const rows=list.length?list.map(x=>`
+    <tr data-id="${x.id}">
+      <td><div style="font-weight:600">${esc(x.event)}</div><div class="small">${esc(x.gala)}</div></td>
+      <td><input style="width:90px" value="${x.time||''}" data-f="time"></td>
+      <td><input style="width:56px" type="number" value="${x.position??''}" data-f="pos"></td>
+      <td style="text-align:center"><input type="checkbox" data-f="pb" ${x.is_personal_best?'checked':''}></td>
+      <td style="text-align:right"><button class="btn sm cyan" onclick="saveResult(this)">Save</button></td>
+    </tr>`).join('')
+    :`<tr><td colspan="5" class="muted" style="padding:12px">No race results recorded for this swimmer yet.</td></tr>`;
+  modal('Times — '+esc(s.full_name), `
+    <p class="small" style="margin:2px 0 12px">Edit a finish time (e.g. <code>32.18</code> or <code>1:11.60</code>), placing, or PB flag.</p>
+    <table><thead><tr><th>Event</th><th>Time</th><th>Pos</th><th>PB</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px"><button class="btn ghost" onclick="closeModal()">Close</button></div>`);
+}
+async function saveResult(btn){
+  const tr=btn.closest('tr'),id=tr.dataset.id;
+  const body={
+    time:tr.querySelector('[data-f="time"]').value,
+    position:tr.querySelector('[data-f="pos"]').value||null,
+    is_personal_best:tr.querySelector('[data-f="pb"]').checked,
+  };
+  const r=await fetch(API+'/api/admin/results/'+id,{method:'PATCH',headers:headers(),body:JSON.stringify(body)});
+  if(!r.ok){const d=await r.json();return toast('Error: '+d.error,'bad');}
+  toast('Result updated','ok');loadSwimmers();
+}
+
+/* ── CSV ── */
+function parseCSV(text){
+  const rows=[];let i=0,field='',row=[],inQ=false;text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  while(i<text.length){const c=text[i];
+    if(inQ){if(c==='"'&&text[i+1]==='"'){field+='"';i+=2;continue;}if(c==='"'){inQ=false;i++;continue;}field+=c;i++;continue;}
+    if(c==='"'){inQ=true;i++;continue;}if(c===','){row.push(field);field='';i++;continue;}
+    if(c==='\n'){row.push(field);rows.push(row);row=[];field='';i++;continue;}field+=c;i++;}
+  if(field.length||row.length){row.push(field);rows.push(row);}
+  const header=rows.shift().map(h=>h.trim().toLowerCase());
+  return rows.filter(r=>r.some(c=>c.trim()!=='')).map(r=>{const o={};header.forEach((h,idx)=>o[h]=(r[idx]??'').trim());return o;});
+}
+async function csvUpload(input){
+  if(!state.schoolId)return toast('Pick a school first','bad');
+  const file=input.files[0];if(!file)return;
+  let rows;try{rows=parseCSV(await file.text());}catch(e){return toast('Could not parse CSV','bad');}
+  if(!rows.length)return toast('No rows found','bad');
+  const r=await fetch(API+'/api/admin/swimmers/bulk',{method:'POST',headers:headers(),body:JSON.stringify({rows,school_id:state.schoolId})});
+  const d=await r.json();
+  if(!r.ok)return toast('Upload failed: '+d.error,'bad');
+  toast(`Swimmers: ${d.created} added${d.errors.length?', '+d.errors.length+' errors':''}`,d.errors.length?'':'ok');
+  input.value='';loadSwimmers();
+}
+const dz=$('dz_swimmers');
+['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+dz.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)csvUpload({files:[f],value:''});});
+
+/* ── modal + boot ── */
+function modal(title,inner){$('modalRoot').innerHTML=`<div class="backdrop" onclick="if(event.target===this)closeModal()"><div class="modal"><h3 style="margin-bottom:10px">${title}</h3>${inner}</div></div>`;}
+function closeModal(){$('modalRoot').innerHTML='';}
+(async function(){
+  if(!token())return;
+  const r=await fetch(API+'/api/admin/me',{headers:headers()});
+  if(r.ok){const d=await r.json();enterApp(d.admin);}else localStorage.removeItem(TOKEN_KEY);
+})();
+$('password').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+</script>
+</body>
+</html>

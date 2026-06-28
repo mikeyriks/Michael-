@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    @apply font-sans bg-ink text-surface antialiased;
+    /* Prevent overscroll on iOS */
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Allow font smoothing on macOS */
+  body {
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* iOS safe-area handling */
+  :root {
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+  }
+}
+
+@layer components {
+  /* Responsive app shell.
+     - Phones: full-bleed, fills the viewport.
+     - Larger screens: a centered, max-width column on a branded backdrop.
+     No device chrome — this reads and behaves as a real web app. */
+  .app-shell {
+    @apply bg-surface overflow-hidden flex flex-col relative mx-auto w-full;
+    height: 100vh;
+    height: 100dvh;
+    max-width: 480px;
+  }
+
+  /* Lift the column off the backdrop on viewports wider than the column */
+  @media (min-width: 481px) {
+    .app-shell {
+      box-shadow: 0 24px 70px -24px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  /* Headline serif display */
+  .display {
+    @apply font-serif font-medium text-ink leading-tight tracking-tight;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar but allow scrolling */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+
+  /* Italic accent variant for serifs */
+  .italic-cyan {
+    @apply italic text-cyan-deep;
+  }
+
+  /* Self-drawing checkmark for the onboarding success screen */
+  .check-draw {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: check-draw 0.5s ease-out 0.32s forwards;
+  }
+  @keyframes check-draw {
+    to { stroke-dashoffset: 0; }
+  }
+}
+
+/* Respect users who prefer reduced motion — disable decorative animation */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .check-draw {
+    stroke-dashoffset: 0 !important;
+  }
+}

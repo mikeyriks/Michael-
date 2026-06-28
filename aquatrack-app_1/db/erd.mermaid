@@ -1,0 +1,91 @@
+erDiagram
+    circuits ||--o{ galas : hosts
+    schools  ||--o{ galas : "hosts at"
+    schools  ||--o{ swimmers : "enrolls"
+    schools  ||--o{ results : "relay team"
+
+    users ||--o{ guardianships : follows
+    swimmers ||--o{ guardianships : "followed by"
+    guardianships ||--o{ consent_events : logs
+
+    users ||--|| notification_preferences : has
+    users ||--o{ devices : registers
+    users ||--o{ subscriptions : pays
+    users ||--o{ race_reminders : sets
+
+    galas  ||--o{ events : contains
+    events ||--o{ heats : "split into"
+    heats  ||--o{ results : "has lanes"
+    swimmers ||--o{ results : swims
+
+    results ||--o{ videos : "filmed as"
+    swimmers ||--o{ videos : "stars in"
+    swimmers ||--o{ race_reminders : "reminded about"
+    events  ||--o{ race_reminders : "for"
+
+    users {
+        uuid id PK
+        text full_name
+        text email UK
+        text phone UK
+    }
+    swimmers {
+        uuid id PK
+        text full_name
+        sex_type sex
+        date date_of_birth
+        uuid school_id FK
+    }
+    guardianships {
+        uuid id PK
+        uuid user_id FK
+        uuid swimmer_id FK
+        relationship_type relationship
+        timestamptz consent_granted_at
+    }
+    galas {
+        uuid id PK
+        text name
+        uuid circuit_id FK
+        date start_date
+        gala_status status
+    }
+    events {
+        uuid id PK
+        uuid gala_id FK
+        text title
+        int distance_m
+        stroke_type stroke
+        bool is_relay
+    }
+    heats {
+        uuid id PK
+        uuid event_id FK
+        int heat_number
+        heat_status status
+    }
+    results {
+        uuid id PK
+        uuid heat_id FK
+        int lane_number
+        uuid swimmer_id FK
+        uuid relay_school_id FK
+        int finish_time_ms
+        int position
+        bool is_personal_best
+        result_status status
+    }
+    videos {
+        uuid id PK
+        uuid result_id FK
+        uuid swimmer_id FK
+        text title
+        bool is_premium
+    }
+    subscriptions {
+        uuid id PK
+        uuid user_id FK
+        subscription_tier tier
+        subscription_status status
+        int price_kes
+    }
